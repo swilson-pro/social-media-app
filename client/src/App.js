@@ -1,8 +1,12 @@
 import './App.css';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import store from './store'
+import {connect} from 'react-redux'
+
 
 function App() {
   const [posts, setPosts] = useState([])
+
 
   useEffect(() => {
     const getPosts = async () => {
@@ -10,6 +14,7 @@ function App() {
         let req = await fetch('http://localhost:3100/posts')
         let res = await req.json()
         if (req.ok) {
+          console.log('User', res)
           setPosts(res)
         } else {
           alert('Posts could not be loaded')
@@ -20,9 +25,17 @@ function App() {
     }
     getPosts()
   }, [])
+
+
+
   
+  const addValue = () => store.dispatch({type: 'counter/incremented'})
+  const reduceValue = () => store.dispatch({type: 'counter/decremented'})
+
+
   return (
     <div className="App">
+
       <h2>News Feed</h2>
       {
         posts.map((post) => {
@@ -34,8 +47,17 @@ function App() {
           )
         })
       }
+      <hr />
+      
+
+      <hr />
+      <h4>Global count is: {store.getState().value}</h4>
+      <button onClick={addValue}>ADD VALUE</button>
+      <button onClick={reduceValue}>REMOVE VALUE</button>
     </div>
   );
 }
-
-export default App;
+const mapStateToProps = state => {
+  return {value: state.value}
+}
+export default connect(mapStateToProps)(App)
